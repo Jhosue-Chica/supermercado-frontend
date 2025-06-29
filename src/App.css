@@ -1,38 +1,92 @@
-.App {
-  text-align: center;
+/* Estilos globales */
+body {
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+/* Contenedor principal */
+.app-container {
   min-height: 100vh;
+}
+
+/* Estilos para el navbar */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Estilos para cards */
+.card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-bottom: 1rem;
+}
+
+/* Estilos para tarjetas de estadísticas */
+.border-start.border-4 {
+  transition: transform 0.2s;
+}
+
+.border-start.border-4:hover {
+  transform: translateY(-2px);
+}
+
+/* Estilos para formularios */
+.form-control:focus, .form-select:focus {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Estilos para tablas */
+.table th {
+  font-weight: 500;
+  color: #555;
+  background-color: #f8f9fa;
+}
+
+/* Estilos para botones */
+.btn {
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Footer */
+footer {
+  box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+}
+
+/* Animaciones de carga */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Estilos para el dashboard */
+.dashboard-card {
+  height: 100%;
+}
+
+/* Estilos para páginas de login */
+.auth-container {
+  min-height: 80vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
