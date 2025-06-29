@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, Badge, Modal, Form, Alert } from 'react-bootstrap';
 import { Formik } from 'formik';
-import * as Yup from 'yup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faTimes, faCheck, faMoneyBill } from '@fortawesome/free-solid-svg-icons';
-import { getSales, createSale, getSale, cancelSale, updateSalePaymentStatus } from '../../services/api';
+import { faPlus, faEdit, faTimes, faCheck, faMoneyBill, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { getSales, cancelSale, updateSalePaymentStatus } from '../../services/api';
 import ApiDataDisplay from '../../components/ApiDataDisplay/ApiDataDisplay';
 
 const SalesPage = () => {
@@ -15,7 +14,7 @@ const SalesPage = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [editingSale, setEditingSale] = useState(null);
   const [selectedSale, setSelectedSale] = useState(null);
-  const [products, setProducts] = useState([]);
+  const [confirmCancel, setConfirmCancel] = useState({ show: false, sale: null });
 
   // Definición de columnas para la tabla de ventas
   const salesColumns = [
@@ -140,16 +139,26 @@ const SalesPage = () => {
   };
 
   // Confirmar la cancelación de una venta
-  const handleCancel = async (sale) => {
-    if (window.confirm(`¿Estás seguro de cancelar la venta #${sale.id}?`)) {
-      try {
-        await cancelSale(sale.id, { reason: 'Cancelado por el usuario' });
-        fetchSales(); // Recargar ventas
-        alert('Venta cancelada correctamente');
-      } catch (err) {
-        setError(err.message || 'Error al cancelar la venta');
-        console.error('Error cancelando venta:', err);
-      }
+  const handleCancel = (sale) => {
+    setConfirmCancel({
+      show: true,
+      sale
+    });
+  };
+
+  const handleCloseConfirmCancel = () => {
+    setConfirmCancel({ show: false, sale: null });
+  };
+
+  const handleConfirmCancel = async () => {
+    try {
+      await cancelSale(confirmCancel.sale.id, { reason: 'Cancelado por el usuario' });
+      fetchSales(); // Recargar ventas
+      setError(null);
+      handleCloseConfirmCancel();
+    } catch (err) {
+      setError(err.message || 'Error al cancelar la venta');
+      console.error('Error cancelando venta:', err);
     }
   };
 
@@ -336,6 +345,30 @@ const SalesPage = () => {
             </Form>
           )}
         </Formik>
+      </Modal>
+
+      {/* Modal Confirmación de Cancelación de Venta */}
+      <Modal show={confirmCancel.show} onHide={handleCloseConfirmCancel} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Cancelación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            ¿Estás seguro de que deseas cancelar la venta <strong>#{confirmCancel.sale?.id}</strong>?
+          </p>
+          <p className="text-danger mb-0">
+            <FontAwesomeIcon icon={faTrash} className="me-2" />
+            Esta acción no se puede deshacer.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseConfirmCancel}>
+            Volver
+          </Button>
+          <Button variant="danger" onClick={handleConfirmCancel}>
+            Cancelar Venta
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );

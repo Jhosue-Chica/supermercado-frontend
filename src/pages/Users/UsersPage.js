@@ -15,6 +15,7 @@ const UsersPage = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState({ show: false, user: null });
 
   // Definición de columnas para la tabla de usuarios
   const userColumns = [
@@ -133,16 +134,26 @@ const UsersPage = () => {
   };
 
   // Confirmar la eliminación de un usuario
-  const handleDelete = async (user) => {
-    if (window.confirm(`¿Estás seguro de eliminar al usuario "${user.username}"?`)) {
-      try {
-        await deleteUser(user.id);
-        fetchUsers(); // Recargar usuarios
-        alert('Usuario eliminado correctamente');
-      } catch (err) {
-        setError(err.message || 'Error al eliminar el usuario');
-        console.error('Error eliminando usuario:', err);
-      }
+  const handleDelete = (user) => {
+    setConfirmDelete({
+      show: true,
+      user
+    });
+  };
+
+  const handleCloseConfirmDelete = () => {
+    setConfirmDelete({ show: false, user: null });
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteUser(confirmDelete.user.id);
+      fetchUsers(); // Recargar usuarios
+      setError(null);
+      handleCloseConfirmDelete();
+    } catch (err) {
+      setError(err.message || 'Error al eliminar el usuario');
+      console.error('Error eliminando usuario:', err);
     }
   };
 
@@ -158,11 +169,10 @@ const UsersPage = () => {
       .required('El email es requerido'),
     role: Yup.string().required('El rol es requerido'),
     password: Yup.string()
-      .when('isNewUser', {
-        is: true,
-        then: Yup.string()
-          .required('La contraseña es requerida')
-          .min(6, 'La contraseña debe tener al menos 6 caracteres')
+      .when(['isNewUser'], (isNewUser, schema) => {
+        return isNewUser[0] === true
+          ? schema.required('La contraseña es requerida').min(6, 'La contraseña debe tener al menos 6 caracteres')
+          : schema
       }),
     active: Yup.boolean()
   });
@@ -481,6 +491,30 @@ const UsersPage = () => {
             </Form>
           )}
         </Formik>
+      </Modal>
+
+      {/* Modal Confirmación de Eliminación de Usuario */}
+      <Modal show={confirmDelete.show} onHide={handleCloseConfirmDelete} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Eliminación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            ¿Estás seguro de que deseas eliminar al usuario <strong>"{confirmDelete.user?.username}"</strong>?
+          </p>
+          <p className="text-danger mb-0">
+            <FontAwesomeIcon icon={faTrash} className="me-2" />
+            Esta acción no se puede deshacer.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseConfirmDelete}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>
+            Eliminar
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );
